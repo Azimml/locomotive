@@ -1,0 +1,1 @@
+{"version":3,"file":"locomotive.module.js","sourceRoot":"","sources":["../../../src/modules/locomotive/locomotive.module.ts"],"names":[],"mappings":";;;;;;;;;AAAA,2CAAwC;AACxC,qEAAgE;AAMzD,IAAM,gBAAgB,GAAtB,MAAM,gBAAgB;CAAG,CAAA;AAAnB,4CAAgB;2BAAhB,gBAAgB;IAJ5B,IAAA,eAAM,EAAC;QACN,SAAS,EAAE,CAAC,6CAAoB,CAAC;QACjC,OAAO,EAAE,CAAC,6CAAoB,CAAC;KAChC,CAAC;GACW,gBAAgB,CAAG"}
