@@ -1,47 +1,29 @@
 from __future__ import annotations
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from ..core.security import decode_access_token
+from ..config import settings
 from ..db.deps import get_db
-from ..services.auth import AuthService
-
-security = HTTPBearer()
+from ..models.user import User
 
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
-) -> dict:
-    token = credentials.credentials
-    try:
-        payload = decode_access_token(token)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-
-    user = AuthService(db).validate_user(user_id)
+def get_current_user(db: Session = Depends(get_db)) -> dict:
+    user = db.query(User).filter(User.login == settings.CHAINLIT_AUTH_USERNAME).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+        user = User(
+            login=settings.CHAINLIT_AUTH_USERNAME,
+            password=settings.CHAINLIT_AUTH_PASSWORD,
+            full_name=settings.CHAINLIT_AUTH_FULL_NAME,
+            is_active=True,
         )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-    if not user.get("isActive"):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Foydalanuvchi faol emas",
-        )
-
-    return user
+    return {
+        "id": user.id,
+        "login": user.login,
+        "fullName": user.full_name,
+        "isActive": user.is_active,
+    }

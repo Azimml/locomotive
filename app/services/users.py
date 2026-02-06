@@ -17,7 +17,7 @@ class UsersService:
         return self.db.query(User).filter(User.id == user_id).first()
 
     def create(self, login: str, password: str, full_name: str | None = None) -> User:
-        # Use pgcrypto to hash the password in the database
+        
         self.db.execute(
             text(
                 """

@@ -290,29 +290,29 @@ class ToolExecutorService:
             None,
         )
 
+        enriched = dict(locomotive)
+        enriched["current_repair"] = (
+            {
+                "type": active_repair.get("repair_type_name_uz")
+                or active_repair.get("repair_type_name"),
+            }
+            if active_repair
+            else None
+        )
+        enriched["last_repair"] = (
+            {
+                "type": last_repair.get("repair_type_name_uz")
+                or last_repair.get("repair_type_name"),
+                "date": last_repair.get("last_updated_at"),
+            }
+            if last_repair
+            else None
+        )
+
         return {
             "success": True,
-            "data": {
-                "id": locomotive["locomotive_id"],
-                "name": locomotive["locomotive_full_name"],
-                "state": self.translate_state(locomotive["state"]),
-                "state_code": locomotive["state"],
-                "is_in_repair": bool(active_repair),
-                "current_repair": {
-                    "type": active_repair["repair_type_name_uz"] or active_repair["repair_type_name"]
-                }
-                if active_repair
-                else None,
-                "last_repair": {
-                    "type": last_repair["repair_type_name_uz"] or last_repair["repair_type_name"],
-                    "date": last_repair["last_updated_at"],
-                }
-                if last_repair
-                else None,
-            },
-            "summary": self.format_detailed_locomotive_info(
-                locomotive, active_repair, last_repair
-            ),
+            "data": enriched,
+            "summary": self.format_locomotive_detailed_info(enriched),
         }
 
     def get_locomotive_detailed_info(self, locomotive_name: str | None) -> dict:
@@ -508,6 +508,18 @@ class ToolExecutorService:
             f"• Joylashuvi: {info.get('location_name')}",
             f"• Depo: {info.get('organization_name')}",
         ]
+
+        if info.get("current_repair"):
+            lines.append("")
+            lines.append("🔧 **Hozirgi ta'mir:**")
+            lines.append(f"• Turi: {info['current_repair'].get('type')}")
+
+        if info.get("last_repair"):
+            lines.append("")
+            lines.append("📋 **Oxirgi ta'mir:**")
+            lines.append(f"• Turi: {info['last_repair'].get('type')}")
+            last_repair_date = info["last_repair"].get("date") or "Ma'lumot yo'q"
+            lines.append(f"• Sana: {last_repair_date}")
 
         years = sorted(info.get("repair_counts_by_year", {}).keys(), reverse=True)
         if years:

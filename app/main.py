@@ -7,7 +7,6 @@ from sqlalchemy.exc import OperationalError
 from .config import settings
 from .db.base import Base
 from .db.session import engine
-from .api.auth import router as auth_router
 from .api.chat import router as chat_router
 from .api.locomotive import router as locomotive_router
 from . import models  # noqa: F401
@@ -44,7 +43,6 @@ def health_check() -> dict:
     }
 
 
-app.include_router(auth_router)
 app.include_router(chat_router)
 app.include_router(locomotive_router)
 

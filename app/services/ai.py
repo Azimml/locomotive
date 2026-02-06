@@ -233,6 +233,128 @@ class AiService:
             },
         }
 
+    def stream_message(
+        self, user_message: str, conversation_history: list[dict]
+    ):
+        start_time = time.time()
+        tools_used: list[str] = []
+
+        intent_analysis = self.analyze_intent(user_message)
+
+        enhanced_message = self.enhance_message_with_context(
+            user_message, conversation_history
+        )
+        final_message = enhanced_message or user_message
+
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            *self.format_conversation_history(conversation_history),
+            {"role": "user", "content": final_message},
+        ]
+
+        max_iterations = 5
+        iteration_count = 0
+        full_content = ""
+
+        while iteration_count < max_iterations:
+            iteration_count += 1
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                tools=locomotive_tools,
+                tool_choice="auto",
+                temperature=0.3,
+                max_tokens=2000,
+                stream=True,
+            )
+
+            tool_calls: dict[int, dict[str, Any]] = {}
+            finish_reason = None
+
+            for chunk in response:
+                choice = chunk.choices[0]
+                if choice.finish_reason:
+                    finish_reason = choice.finish_reason
+
+                delta = choice.delta
+                if delta is None:
+                    continue
+
+                if delta.content:
+                    full_content += delta.content
+                    yield {"type": "token", "content": delta.content}
+
+                if delta.tool_calls:
+                    for tool_call in delta.tool_calls:
+                        idx = tool_call.index or 0
+                        entry = tool_calls.setdefault(
+                            idx,
+                            {
+                                "id": tool_call.id,
+                                "function": {"name": "", "arguments": ""},
+                            },
+                        )
+                        if tool_call.id:
+                            entry["id"] = tool_call.id
+                        if tool_call.function:
+                            if tool_call.function.name:
+                                entry["function"]["name"] = tool_call.function.name
+                            if tool_call.function.arguments:
+                                entry["function"]["arguments"] += tool_call.function.arguments
+
+            if finish_reason != "tool_calls":
+                break
+
+            if not tool_calls:
+                break
+
+            tool_calls_list: list[dict[str, Any]] = []
+            for idx in sorted(tool_calls.keys()):
+                call = tool_calls[idx]
+                tool_calls_list.append(
+                    {
+                        "id": call.get("id") or f"call_{idx}",
+                        "type": "function",
+                        "function": {
+                            "name": call["function"]["name"],
+                            "arguments": call["function"]["arguments"],
+                        },
+                    }
+                )
+
+            messages.append({"role": "assistant", "tool_calls": tool_calls_list})
+
+            for tool_call in tool_calls_list:
+                function_name = tool_call["function"]["name"]
+                function_args = json.loads(tool_call["function"]["arguments"] or "{}")
+                tools_used.append(function_name)
+                result = self.tool_executor.execute_function(function_name, function_args)
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call["id"],
+                        "content": json.dumps(
+                            {
+                                "success": result.get("success"),
+                                "data": result.get("data"),
+                                "summary": result.get("summary"),
+                            },
+                            ensure_ascii=False,
+                        ),
+                    }
+                )
+
+        processing_time = int((time.time() - start_time) * 1000)
+        yield {
+            "type": "final",
+            "content": full_content or "Javob olishda xatolik yuz berdi",
+            "metadata": {
+                "toolsUsed": tools_used or None,
+                "processingTime": processing_time,
+                "intentAnalysis": intent_analysis,
+            },
+        }
+
     def enhance_message_with_context(
         self, user_message: str, conversation_history: list[dict]
     ) -> str | None:

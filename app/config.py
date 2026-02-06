@@ -22,18 +22,22 @@ def _build_database_url() -> str:
 
 @dataclass(frozen=True)
 class Settings:
-    # Database
+    
     DATABASE_URL: str = _build_database_url()
 
-    # Auth
-    JWT_SECRET: str = os.environ.get("JWT_SECRET", "change-me")
-    JWT_EXPIRES_IN: str = os.environ.get("JWT_EXPIRES_IN", "7d")
+    
+    CHAINLIT_AUTH_SECRET: str = "change-me-chainlit-secret"
+    CHAINLIT_AUTH_USERNAME: str = "admin"
+    CHAINLIT_AUTH_PASSWORD: str = "admin"
+    CHAINLIT_AUTH_FULL_NAME: str = "Chainlit Admin"
+    CHAINLIT_PERSISTENCE_ENABLED: bool = True
+    CHAINLIT_DB_SCHEMA: str = "chainlit"
 
-    # OpenAI
+    
     OPENAI_API_KEY: str | None = os.environ.get("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
-    # External API
+    
     LOCOMOTIVE_API_URL: str | None = os.environ.get("LOCOMOTIVE_API_URL")
 
 

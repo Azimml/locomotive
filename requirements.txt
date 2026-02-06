@@ -3,6 +3,6 @@ uvicorn
 sqlalchemy
 pandas
 openai
-python-jose[cryptography]
 psycopg2-binary
 chainlit
+asyncpg
