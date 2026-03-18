@@ -9,5 +9,6 @@ openai-agents==0.10.2
 pydantic==2.12.5
 pydantic-settings==2.13.1
 requests==2.32.5
+psycopg2-binary==2.9.10
 SQLAlchemy==2.0.47
 uvicorn==0.41.0
