@@ -150,12 +150,12 @@
 
 ## 3. CountEmmInfo — Ishga chiqish soni (EMM hisob)
 
-⚠️ MUHIM: CountEmm API faqat KUMULYATIV (jami) son beradi — 2026-yil boshidan bugungi kungacha.
-Oylik, haftalik yoki kunlik ajratib BO'LMAYDI!
+✅ Sana bo'yicha filtrlanadi! Oylik, haftalik, choraklik, kunlik so'rovlar qilish mumkin.
+from_date/to_date bo'lmasa — 2026-yil boshidan bugungi kungacha JAMI qaytaradi.
 Har bir lokomotiv uchun alohida yozuv bo'ladi, jami = barcha lokomotivlar yig'indisi.
 
 ### Umumiy EMM statistika:
-- Mashinistlar jami necha marta ishga chiqqan? (2026-yil boshidan bugungi kungacha)
+- Mashinistlar jami necha marta ishga chiqqan?
 - Jami ishga chiqish hisobi
 - count_emm hisobi
 
@@ -190,6 +190,13 @@ Har bir lokomotiv uchun alohida yozuv bo'ladi, jami = barcha lokomotivlar yig'in
 - Kim qaysi lokomotivda necha marta ishlagan?
 - Talgo-250 da eng ko'p ishlagan mashinist
 - Lokomotiv bo'yicha ishga chiqish taqsimoti
+
+### Oylik / choraklik / haftalik:
+- Yanvar oyida mashinistlar necha marta ishga chiqqan?
+- Fevral oyida eng ko'p ishlagan mashinistlar
+- Mart oyida EMM hisobi
+- 1-chorakda ishga chiqish statistikasi
+- O'tgan hafta necha marta ishga chiqqan mashinistlar?
 
 
 ## 4. MedFullData — Tibbiy ko'rik natijalari

@@ -1569,31 +1569,51 @@ def get_mashinist_emm_count(
     depo_id: int = 0,
     mashinist_type_id: int = 0,
     brigada_group_id: int = 0,
+    from_date: str = "",
+    to_date: str = "",
+    mashinist_name: str = "",
 ) -> str:
-    """Mashinistlar necha marta ishga chiqqanini ko'rsatadi (EMM soni) — 2026-yil boshidan bugungi kungacha JAMI.
+    """Mashinistlar necha marta ishga chiqqanini ko'rsatadi (EMM soni).
 
-    ❗ Bu JAMI (kumulyativ) son — oylik yoki kunlik ajratib bo'lmaydi! API faqat umumiy jami beradi.
-    ❗ "Kecha ishga chiqqanlar" uchun bu tool emas, get_mashinist_work_info(date_filter=...) ishlating!
+    Sana bo'yicha filtrlanadi! from_date/to_date bilan oylik, haftalik, kunlik ma'lumot olish mumkin.
+    from_date/to_date bo'lmasa — 2026-yil boshidan bugungi kungacha JAMI (keshdan).
+    ❗ "Kecha ishga chiqqanlar" uchun get_mashinist_work_info(date_filter=...) ishlating!
     ❗ brigada_group_id bilan aniq brigada a'zolarining EMM hisobini ko'rish mumkin!
+    ❗ mashinist_name bilan aniq shaxs bo'yicha EMM hisobini ko'rish mumkin!
 
-    Foydalaning: 'Kim jami qancha marta ishga chiqqan?', 'EMM hisobi', 'Eng ko'p ishga chiqqan mashinistlar', '13-brigada jami necha marta ishladi?'
+    Foydalaning: 'Yanvar oyida kim necha marta ishga chiqqan?', 'Mart oyidagi EMM hisobi', 'Eng ko'p ishga chiqqan mashinistlar', '13-brigada jami necha marta ishladi?', 'Jamolov yanvar oyida necha marta ishlagan?'
 
     Args:
         depo_id: Brigada depo ID (0=barchasi, 1-8)
         mashinist_type_id: 0=barchasi
         brigada_group_id: Brigada ID (0=barchasi). Brigada a'zolarining EMM hisobini ko'rish uchun.
+        from_date: Boshlanish sanasi (format: 2026-01-01T00:00:00). Bo'sh = boshidan.
+        to_date: Tugash sanasi (format: 2026-03-18T23:59:59). Bo'sh = bugunga qadar.
+        mashinist_name: Mashinist ismi (familiyasi yoki to'liq FIO). Bo'sh = barchasi.
     """
     try:
         records = brigade_api.get_count_emm_info(
             mashinist_type_id=mashinist_type_id,
             depo_id=depo_id,
             brigada_group_id=brigada_group_id,
+            from_date=from_date,
+            to_date=to_date,
         )
     except brigade_api.BrigadeApiError as exc:
         return f"EMM hisob ma'lumotlarini olib bo'lmadi: {exc}"
 
     if not records:
         return "EMM ma'lumotlari topilmadi"
+
+    # Filter by mashinist name if provided
+    if mashinist_name:
+        name_lower = mashinist_name.lower()
+        records = [
+            r for r in records
+            if name_lower in f"{(r.get('last_name') or '')} {(r.get('first_name') or '')} {(r.get('second_name') or '')}".lower()
+        ]
+        if not records:
+            return f"'{mashinist_name}' ismli mashinist EMM ma'lumotlari topilmadi"
 
     # Aggregate per person (sum across all locomotives)
     from collections import defaultdict
@@ -1622,8 +1642,14 @@ def get_mashinist_emm_count(
     persons_sorted = sorted(person_agg.values(), key=lambda p: p["total"], reverse=True)
 
     total_emm = sum(p["total"] for p in persons_sorted)
+    if from_date or to_date:
+        fd = from_date[:10] if from_date else "2026-01-01"
+        td = to_date[:10] if to_date else "bugun"
+        period_label = f"{fd} — {td}"
+    else:
+        period_label = "2026-yil boshidan bugungi kungacha jami"
     lines = [
-        f"📊 EMM hisobi (2026-yil boshidan bugungi kungacha jami): {len(persons_sorted)} ta mashinist, jami {total_emm} marta ishga chiqish",
+        f"📊 EMM hisobi ({period_label}): {len(persons_sorted)} ta mashinist, jami {total_emm} marta ishga chiqish",
     ]
 
     for p in persons_sorted[:20]:

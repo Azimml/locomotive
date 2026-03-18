@@ -488,22 +488,36 @@ def get_count_emm_info(
     mashinist_type_id: int = 0,
     depo_id: int = 0,
     brigada_group_id: int = 0,
+    from_date: str = "",
+    to_date: str = "",
 ) -> list[dict]:
-    """Get EMM count info from local cache, filtered in-memory.
+    """Get EMM count info filtered by parameters.
 
-    NOTE: CountEmm API returns CUMULATIVE totals (Jan 1 - today). No per-month breakdown available.
+    If from_date/to_date are provided, calls API directly with date range.
+    Otherwise returns cached cumulative data (Jan 1 - today).
     brigada_group_id: optional brigade filter (cross-references with MashinistListInfo).
     """
-    _ensure_dataset_loaded()
-    records = list(_dataset_cache.get("count_emm") or [])
-    if mashinist_type_id:
-        records = [r for r in records if r.get("mashinist_type_id") == mashinist_type_id]
-    if depo_id or brigada_group_id:
-        person_map = _get_person_info_map()
+    if from_date or to_date:
+        # Date-filtered query — call API directly
+        records = _api_get_count_emm_info(
+            mashinist_type_id=mashinist_type_id,
+            depo_id=depo_id,
+            from_date=from_date,
+            to_date=to_date,
+        )
+    else:
+        # Use cached cumulative data
+        _ensure_dataset_loaded()
+        records = list(_dataset_cache.get("count_emm") or [])
+        if mashinist_type_id:
+            records = [r for r in records if r.get("mashinist_type_id") == mashinist_type_id]
         if depo_id:
+            person_map = _get_person_info_map()
             records = [r for r in records if person_map.get(r.get("id"), {}).get("depo_id") == depo_id]
-        if brigada_group_id:
-            records = [r for r in records if person_map.get(r.get("id"), {}).get("brigada_group_id") == brigada_group_id]
+
+    if brigada_group_id:
+        person_map = _get_person_info_map()
+        records = [r for r in records if person_map.get(r.get("id"), {}).get("brigada_group_id") == brigada_group_id]
     return records
 
 
@@ -776,7 +790,7 @@ def refresh_dataset_cache() -> dict:
         logger.warning("Failed to fetch WorkInfo: %s", exc)
         work_info = []
 
-    # 3. CountEmmInfo — cumulative total (API ignores date ranges, always returns full total)
+    # 3. CountEmmInfo — full range (Jan 1 - today) for cache
     emm_from = "2026-01-01T00:00:00"
     emm_to = now_dt.strftime("%Y-%m-%dT23:59:59")
     try:
@@ -838,7 +852,7 @@ def update_dataset_cache() -> dict:
         logger.warning("Failed to fetch WorkInfo: %s", exc)
         work_info = list(_dataset_cache.get("work_info") or [])
 
-    # 3: CountEmm — re-fetch total (API always returns cumulative totals)
+    # 3: CountEmm — re-fetch full range for cache
     emm_from = "2026-01-01T00:00:00"
     emm_to = now_dt.strftime("%Y-%m-%dT23:59:59")
     try:

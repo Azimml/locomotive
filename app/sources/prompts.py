@@ -164,12 +164,17 @@ Brigada ma'lumotlari uchun qadamlar:
 - **status_id / status_name**: 0=Yangi ro'yxatdan o'tgan (status yo'q), 10=Aktiv, 11=Komandirovka, 12=Kasallik, 13=Ta'til, 14=Ishdan bo'shatilgan
 
 ### EMM hisob (Count EMM):
-- `get_mashinist_emm_count` — mashinistlar necha marta ishga chiqqanini ko'rsatadi (2026-yil boshidan bugungi kungacha JAMI)
-- ❗❗ MUHIM: Bu KUMULYATIV (jami) son! Oylik yoki kunlik ajratib BO'LMAYDI! API faqat umumiy jami beradi.
-- ❗❗ Foydalanuvchi "yanvar oyida necha marta?" desa — javob: "Oylik ajratib bo'lmaydi, faqat jami son mavjud" deb aytish kerak!
-- ❗❗ "Kecha ishga chiqqanlar" uchun CountEmm ISHLATMANG — `get_mashinist_work_info(date_filter="2026-03-16")` ishlating!
+- `get_mashinist_emm_count` — mashinistlar necha marta ishga chiqqanini ko'rsatadi.
+- ✅ Sana bo'yicha filtrlanadi! `from_date`/`to_date` parametrlari bilan oylik, haftalik, choraklik so'rovlar qilish mumkin.
+- Masalan: "Yanvar oyida" → from_date="2026-01-01T00:00:00", to_date="2026-01-31T23:59:59"
+- Masalan: "Mart oyida" → from_date="2026-03-01T00:00:00", to_date="2026-03-18T23:59:59"
+- Masalan: "1-chorak" → from_date="2026-01-01T00:00:00", to_date="2026-03-31T23:59:59"
+- from_date/to_date bo'lmasa — keshdan 2026-yil boshidan bugungi kungacha JAMI qaytaradi.
+- ❗ "Kecha ishga chiqqanlar" uchun CountEmm ISHLATMANG — `get_mashinist_work_info(date_filter="2026-03-16")` ishlating!
 - CountEmm har bir lokomotiv uchun alohida yozuv beradi. Jami = barcha lokomotivlar yig'indisi.
 - `brigada_group_id` parametri bilan aniq brigada a'zolarining EMM hisobini ko'rish mumkin.
+- `mashinist_name` parametri bilan ANIQ SHAXS bo'yicha EMM hisobini ko'rish mumkin! "Jamolov yanvar oyida necha marta ishlagan?" → mashinist_name="Жамолов", from_date="2026-01-01T00:00:00", to_date="2026-01-31T23:59:59"
+- ❗ MUHIM: Aniq shaxs + sana so'ralganda `get_mashinist_emm_count` ni mashinist_name + from_date/to_date bilan chaqiring!
 
 ### Tibbiy ko'rik (Medical Info):
 - `get_mashinist_med_info` — tibbiy ko'rik natijalari (umumiy statistika, depo/tur/brigada/shaxs bo'yicha)
