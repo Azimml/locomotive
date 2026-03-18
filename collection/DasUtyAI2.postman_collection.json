@@ -1,0 +1,282 @@
+{
+  "info": {
+    "_postman_id": "fa569afb-5017-4617-b171-33e24e3c3569",
+    "name": "DasUtyAI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29204790"
+  },
+  "item": [
+    {
+      "name": "Authenticate",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://emm.railway.uz/api/Authenticate?ClientId=Sunnat_20erw26ff&ClientSecret=y7b23234@d84f",
+          "protocol": "https",
+          "host": [
+            "emm",
+            "railway",
+            "uz"
+          ],
+          "path": [
+            "api",
+            "Authenticate"
+          ],
+          "query": [
+            {
+              "key": "ClientId",
+              "value": "Sunnat_20erw26ff"
+            },
+            {
+              "key": "ClientSecret",
+              "value": "y7b23234@d84f"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MashinistInfo",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "4e8yxWx73kiJiBPFX/moRq6QXIaBy17aMTZTdW5uYXRfMjBlcncyNmZm",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://emm.railway.uz/api/DasUtyAI/SearchMashinistListInfo?instruktor_id=0&brigada_group_id=0&status_id=0&depo_id=8",
+          "protocol": "https",
+          "host": [
+            "emm",
+            "railway",
+            "uz"
+          ],
+          "path": [
+            "api",
+            "DasUtyAI",
+            "SearchMashinistListInfo"
+          ],
+          "query": [
+            {
+              "key": "instruktor_id",
+              "value": "0"
+            },
+            {
+              "key": "brigada_group_id",
+              "value": "0"
+            },
+            {
+              "key": "status_id",
+              "value": "0"
+            },
+            {
+              "key": "depo_id",
+              "value": "8"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MashinistWorkInfo",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "4e8yxWx73kiJiBPFX/moRq6QXIaBy17aMTZTdW5uYXRfMjBlcncyNmZm",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://emm.railway.uz/api/DasUtyAI/SearchMashinistListWorkInfo?mashinist_type_id=0&status_id=0&depo_id=0&working_type=0",
+          "protocol": "https",
+          "host": [
+            "emm",
+            "railway",
+            "uz"
+          ],
+          "path": [
+            "api",
+            "DasUtyAI",
+            "SearchMashinistListWorkInfo"
+          ],
+          "query": [
+            {
+              "key": "mashinist_type_id",
+              "value": "0"
+            },
+            {
+              "key": "status_id",
+              "value": "0"
+            },
+            {
+              "key": "depo_id",
+              "value": "0"
+            },
+            {
+              "key": "working_type",
+              "value": "0",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MashinistEmmCountInfo",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "4e8yxWx73kiJiBPFX/moRq6QXIaBy17aMTZTdW5uYXRfMjBlcncyNmZm",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://emm.railway.uz/api/DasUtyAI/SearchMashinistListCountEmmInfo?mashinist_type_id=0&depo_id=0&from_date=2026-01-01T00:00:00&to_date=2026-02-01T23:59:59",
+          "protocol": "https",
+          "host": [
+            "emm",
+            "railway",
+            "uz"
+          ],
+          "path": [
+            "api",
+            "DasUtyAI",
+            "SearchMashinistListCountEmmInfo"
+          ],
+          "query": [
+            {
+              "key": "mashinist_type_id",
+              "value": "0"
+            },
+            {
+              "key": "depo_id",
+              "value": "0"
+            },
+            {
+              "key": "from_date",
+              "value": "2026-01-01T00:00:00"
+            },
+            {
+              "key": "to_date",
+              "value": "2026-02-01T23:59:59"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "EmmMedFullDataInfo",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "4e8yxWx73kiJiBPFX/moRq6QXIaBy17aMTZTdW5uYXRfMjBlcncyNmZm",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://emm.railway.uz/api/DasUtyAI/SearchEmmMedFullDataInfo?mashinist_type_id=0&depo_id=0&from_date=2026-01-01T00:00:00&to_date=2026-01-10T23:59:59&allow_work=0&after_work=0",
+          "protocol": "https",
+          "host": [
+            "emm",
+            "railway",
+            "uz"
+          ],
+          "path": [
+            "api",
+            "DasUtyAI",
+            "SearchEmmMedFullDataInfo"
+          ],
+          "query": [
+            {
+              "key": "mashinist_type_id",
+              "value": "0"
+            },
+            {
+              "key": "depo_id",
+              "value": "0"
+            },
+            {
+              "key": "from_date",
+              "value": "2026-01-01T00:00:00"
+            },
+            {
+              "key": "to_date",
+              "value": "2026-01-10T23:59:59"
+            },
+            {
+              "key": "allow_work",
+              "value": "0"
+            },
+            {
+              "key": "after_work",
+              "value": "0"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

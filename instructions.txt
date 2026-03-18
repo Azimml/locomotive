@@ -1,0 +1,281 @@
+# 4 ta API endpoint bo'yicha mumkin bo'lgan savollar ro'yxati
+
+## 1. MashinistListInfo — Mashinistlar ro'yxati (asosiy ma'lumotlar)
+
+### Umumiy ro'yxat va qidirish:
+- Barcha mashinistlar ro'yxatini ko'rsat
+- Mashinistlar jami nechta?
+- Aktiv mashinistlar nechta?
+- Ishdan bo'shatilganlar ro'yxati
+- Kasallik varaqasidagilar kimlar?
+- Ta'tildagi mashinistlar
+- Komandirovkadagilar kimlar?
+- Yangi ro'yxatdan o'tgan xodimlar (status 0)
+
+### Ism bo'yicha qidirish:
+- Sadirov Axror haqida ma'lumot ber
+- Арисланов Ниетали kim?
+- Ismida "Ali" bo'lgan mashinistlarni top
+- Familiyasi Karimov bo'lganlar
+
+### ID va tabel raqami bo'yicha:
+- ID 125 kim?
+- Tabel raqami 450 bo'lgan mashinist kim?
+- 3870-chi xodim haqida ma'lumot
+
+### Depo bo'yicha:
+- ТЧ-1 Узбекистан depodagi mashinistlar
+- Buxoro depodagi xodimlar ro'yxati
+- Qo'ng'irot depoda nechta mashinist bor?
+- Termez depodagi aktiv mashinistlar
+- Har bir depoda nechta mashinist bor?
+- Depolar bo'yicha mashinistlar soni
+
+### Brigada bo'yicha:
+- 5-brigadadagi mashinistlar kimlar?
+- Qaysi brigadada eng ko'p mashinist bor?
+- Brigadasi yo'q mashinistlar
+- Brigada tarkibi
+
+### Lavozim bo'yicha:
+- Mashinistlar nechta, pomoshchilar nechta?
+- Faqat mashinistlarni ko'rsat
+- Faqat pomoshchilarni ko'rsat
+- Mashinist va pomoshchi nisbati qanday?
+
+### Lokomotiv bo'yicha:
+- ТЭМ-2 lokomotivida kim ishlayapti?
+- Lokomotiv raqami 6316 da kim bor?
+- Lokomotivga biriktirilgan mashinistlar
+- Lokomotivi yo'q mashinistlar
+- Qaysi lokomotivda kim ishlaydi?
+
+### Aloqa ma'lumotlari:
+- Sadirov Axrorning telefon raqami nima?
+- Telefon raqami 97 784 bo'lgan mashinist kim?
+- Telefoni yo'q mashinistlar ro'yxati
+- Telefoni bor mashinistlar nechta?
+
+### Status bo'yicha statistika:
+- Aktiv mashinistlar soni
+- Status bo'yicha guruhlangan statistika
+- Qancha mashinist aktiv, qanchasi ta'tilda?
+- Ishdan bo'shatilganlar soni
+- Kasallik varaqasidagilar soni
+
+### Instruktor bo'yicha:
+- Instruktori kim bo'lgan mashinistlar?
+- Qaysi instruktor qaysi mashinistlarga biriktirilgan?
+- Instruktori yo'q mashinistlar
+
+### Tug'ilgan kun:
+- Sadirov Axrorning tug'ilgan kuni qachon?
+- 1992-yilda tug'ilgan mashinistlar
+- Eng yosh mashinist kim?
+- Eng katta yoshdagi mashinist
+
+### Kombinatsiyali savollar:
+- Buxoro depodagi aktiv mashinistlar ro'yxati
+- ТЧ-1 da lokomotivi bor mashinistlar
+- Telefoni bor aktiv pomoshchilar soni
+- Termez depodagi kasallik varaqasidagilar
+
+
+## 2. WorkInfo — Ish holati ma'lumotlari
+
+### Smena holati:
+- Hozir smenada kim bor?
+- Dam olishda kim bor?
+- Ishda bo'lgan mashinistlar ro'yxati
+- Hozir nechta mashinist ishda?
+- Dam olishdagi mashinistlar soni
+- Marshrut ochilmaganlar kimlar?
+
+### Ish holati bo'yicha statistika:
+- Ishda/dam olishda nisbati qanday?
+- Har bir depoda nechtasi ishda, nechtasi dam olishda?
+- Smenada bo'lgan mashinistlar soni
+- work_status bo'yicha taqsimot
+
+### Sanaga qarab ishga chiqqanlar (date_filter):
+- Kecha ishga chiqqanlar ro'yxati (date_filter="2026-03-15")
+- Bugun ishga chiqqanlar (date_filter="2026-03-16")
+- 10-mart kuni ishga chiqqanlar (date_filter="2026-03-10")
+- Ma'lum bir sanada kim ishga chiqqan?
+
+### Yavka vaqtlari:
+- Mashinistlar ishga qachon kelgan?
+- Ishga kelish vaqtlari (em_come_date)
+- em_come_date va r3_come_date farqi bormi?
+
+### Ketish vaqtlari:
+- Mashinistlar qachon ketgan?
+- leave_date bo'yicha ma'lumot
+- Bugun ketganlar ro'yxati
+
+### Dam olish vaqti (leave_diff):
+- Eng uzoq dam olgan mashinist kim?
+- Oxirgi dam olishdan necha soat o'tgan?
+- leave_diff 24 soatdan oshganlar
+- Dam olish vaqti qisqa bo'lganlar (kam dam olganlar)
+
+### Ishga chiqqan vaqt (come_diff):
+- Oxirgi ishga chiqqanidan necha soat o'tgan?
+- come_diff eng katta bo'lgan mashinistlar
+- Uzoq vaqt ishga chiqmaganlar
+
+### Lavozim farqi (main_type_id vs mashinist_type_id):
+- Asosiy lavozimi mashinist lekin hozir pomoshnik bo'lib ishlayotganlar
+- main_type_id va mashinist_type_id farq qiladigan xodimlar
+- Pomoshnik lavozimida lekin mashinist bo'lib ishlayotganlar
+
+### Lokomotiv ma'lumotlari (ishdagi):
+- Hozir qaysi lokomotivda kim ishlayapti?
+- ТЭМ-2 da ishlayotgan mashinistlar
+- Lokomotiv raqami 1500 da kim ishda?
+- Qaysi turdagi lokomotivlarda mashinistlar ishlayapti? (type_name)
+- Teplovozda ishlayotganlar soni
+- Elektrovozda ishlayotganlar ro'yxati
+
+### Depolar bo'yicha ish holati:
+- Buxoro depoda hozir nechta mashinist ishda?
+- ТЧ-1 dagi dam olishdagilar
+- Har depodagi ishda/dam olishda nisbati
+
+### Kombinatsiyali savollar:
+- Ishda bo'lgan mashinistlardan qaysilari 12 soatdan ko'p ishlayapti?
+- Dam olishda 48 soatdan oshganlar
+- Buxoro depodagi smenada bo'lgan pomoshchilar
+
+
+## 3. CountEmmInfo — Ishga chiqish soni (EMM hisob)
+
+⚠️ MUHIM: CountEmm API faqat KUMULYATIV (jami) son beradi — 2026-yil boshidan bugungi kungacha.
+Oylik, haftalik yoki kunlik ajratib BO'LMAYDI!
+Har bir lokomotiv uchun alohida yozuv bo'ladi, jami = barcha lokomotivlar yig'indisi.
+
+### Umumiy EMM statistika:
+- Mashinistlar jami necha marta ishga chiqqan? (2026-yil boshidan bugungi kungacha)
+- Jami ishga chiqish hisobi
+- count_emm hisobi
+
+### Reyting va solishtirish:
+- Eng ko'p ishga chiqqan mashinist kim?
+- Eng kam ishga chiqqan mashinistlar
+- count_emm bo'yicha reyting
+- Kim eng ko'p ishlagan, kim eng kam?
+- Top 10 eng ko'p ishga chiqqan mashinistlar
+
+### Depo bo'yicha EMM:
+- Buxoro depoda kim necha marta ishga chiqqan?
+- Har depoda o'rtacha ishga chiqish soni
+- ТЧ-1 dagi mashinistlarning EMM hisobi
+- Qaysi depoda eng faol mashinistlar bor?
+
+### Brigada bo'yicha EMM:
+- 13-brigada jami necha marta ishlagan?
+- Termez deposidagi 12-brigada EMM hisobi
+- Qaysi brigadada eng faol mashinistlar?
+
+### Lavozim bo'yicha:
+- Mashinistlar va pomoshchilar ishga chiqish soni
+- Faqat mashinistlarning EMM hisobi
+- Pomoshchilar necha marta ishga chiqqan?
+
+### Aniq shaxs bo'yicha:
+- Sadirov Axrorning jami EMM hisobi qancha?
+- Арисланов jami necha marta ishlagan?
+
+### Lokomotiv bo'yicha:
+- Kim qaysi lokomotivda necha marta ishlagan?
+- Talgo-250 da eng ko'p ishlagan mashinist
+- Lokomotiv bo'yicha ishga chiqish taqsimoti
+
+
+## 4. MedFullData — Tibbiy ko'rik natijalari
+
+⚠️ MUHIM: Bu yozuvlar KO'RIK SONINI ko'rsatadi, ODAM SONINI emas! Bir mashinist kuniga 2 marta ko'rikdan o'tishi mumkin.
+✅ YANGI: mashinist_fio maydoni orqali ANIQ SHAXS bo'yicha tibbiy ko'rik tarixi ko'rish mumkin!
+✅ YANGI: brigada_group_id parametri bilan BRIGADA bo'yicha tibbiy ko'riklar ko'rish mumkin!
+Ma'lumotlar keshda 2026-01-01 dan bugungi kungacha saqlangan, sana bo'yicha filtrlanadi (create_date).
+
+### Umumiy tibbiy ko'rik statistikasi:
+- Tibbiy ko'rik natijalari
+- Jami nechta tibbiy ko'rik o'tkazilgan? (bu ko'rik soni, odam soni emas!)
+- Sog'lom ko'riklar soni va kasal ko'riklar soni
+- Ishga ruxsat berilgan va berilmagan ko'riklar nisbati
+
+### Sog'lomlik holati (allow_work):
+- Ishga ruxsat berilgan ko'riklar soni (allow_work=1)
+- Ishga ruxsat berilmagan ko'riklar soni (allow_work=2)
+- Kasal deb topilgan ko'riklar ro'yxati
+
+### Alkogol test natijalari:
+- Alkogol aniqlangan ko'riklar soni
+- Alkogol aniqlanmagan ko'riklar soni
+- Alkogol test statistikasi
+
+### Ko'rik vaqti (ishdan oldin/keyin):
+- Ishdan oldin ko'riklar soni
+- Ishdan keyin ko'riklar soni
+- Ishdan oldin va keyin ko'riklar nisbati
+
+### Tibbiy ko'rsatkichlar:
+- Puls (yurak urishi) ko'rsatkichlari
+- Tana harorati ko'rsatkichlari
+- Kasallik belgilari (symptom) aniqlangan ko'riklar
+
+### Medpunkt va ish joyi:
+- Qaysi medpunktda ko'rik o'tkazilgan?
+- Medpunkt bo'yicha statistika
+- Qaysi ish joyida (workplace) ko'rik bo'lgan?
+- Punklar bo'yicha ko'rik soni
+
+### Shifokor bo'yicha:
+- Qaysi shifokor ko'rik o'tkazgan?
+- Eng ko'p ko'rik o'tkazgan shifokor
+- Shifokorlar ro'yxati
+
+### Depo bo'yicha tibbiy ma'lumot:
+- Buxoro depodagi tibbiy ko'rik natijalari
+- Har depoda sog'lom/kasal ko'riklar nisbati
+- Qaysi depoda eng ko'p kasal ko'rik bor?
+
+### Sana oralig'i bo'yicha:
+- Bu hafta tibbiy ko'rik natijalari
+- Mart oyidagi tibbiy ko'rik statistikasi
+- Bugungi ko'rik natijalari
+- Oxirgi 7 kunda tibbiy ko'riklar
+
+### Muammoli natijalar:
+- Muammoli tibbiy natijalar (kasal yoki alkogol aniqlangan ko'riklar)
+- Alkogol aniqlangan ko'riklar ro'yxati
+
+### Aniq shaxs bo'yicha tibbiy ko'rik:
+- Мирзаев Акбарning tibbiy ko'rik tarixi
+- Sadirov Axror sog'lommi yoki kasal?
+- X mashinistning oxirgi tibbiy ko'rigi qachon bo'lgan?
+- X mashinistda alkogol aniqlangan holat bormi?
+
+### Brigada bo'yicha tibbiy ko'rik:
+- 13-brigada a'zolari tibbiy ko'rikdan o'tganmi?
+- Termez deposidagi 12-brigada tibbiy ko'rik natijalari
+- Qaysi brigadada eng ko'p kasal ko'rik bor?
+
+### Kombinatsiyali savollar:
+- Buxoro depodagi ishdan oldin kasal deb topilgan ko'riklar
+- Mart oyida qaysi depoda eng ko'p kasal ko'rik bor?
+- Ishdan keyin ko'rikda muammoli natijalar
+
+
+## 5. Bir nechta endpoint birgalikda ishlatiladigan savollar
+
+- Mashinist name haqida to'liq ma'lumot (profil + ish holati + EMM + tibbiy ko'rik tarixi) — `get_brigade_person_details`
+- Buxoro deposi haqida umumiy hisobot (xodimlar soni + ishda kim bor)
+- Eng ko'p ishga chiqqan mashinistlar va ularning hozirgi ish holati
+- Pomoshnik sifatida ishlayotgan mashinistlarning EMM hisobi
+- Kecha ishga chiqqanlar ro'yxati — `get_mashinist_work_info(date_filter="...")`
+- Bugun ishga chiqqanlar va ularning lokomotivlari
+
+✅ Tibbiy ma'lumotlar endi mashinist_fio orqali aniq shaxsga bog'lanadi!
+"X mashinistning sog'lik holati" — `get_brigade_person_details` yoki `get_mashinist_med_info(mashinist_name="X")` orqali javob berish mumkin.

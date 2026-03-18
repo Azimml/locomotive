@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-sqlalchemy
-pandas
-openai
-psycopg2-binary
-chainlit
-asyncpg
