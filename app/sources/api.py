@@ -483,6 +483,65 @@ def get_work_info(
     return records
 
 
+def _resolve_count_emm_from_monthly(
+    monthly: dict[str, list[dict]],
+    from_date: str,
+    to_date: str,
+) -> list[dict] | None:
+    """Try to serve a date-filtered CountEmm query from cached monthly data.
+
+    Returns merged records if the requested range is fully covered by cached months,
+    or None if we need to fall back to the live API.
+
+    For single-month queries, returns that month's data directly.
+    For multi-month queries (e.g. quarter), sums count_emm per person across months.
+    """
+    if not monthly or not from_date or not to_date:
+        return None
+
+    # Parse requested range to determine which months are needed
+    try:
+        fd = from_date[:10]  # "2026-01-01"
+        td = to_date[:10]    # "2026-01-31"
+        fy, fm = int(fd[:4]), int(fd[5:7])
+        ty, tm = int(td[:4]), int(td[5:7])
+    except (ValueError, IndexError):
+        return None
+
+    # Collect needed month keys
+    needed = []
+    y, m = fy, fm
+    while (y, m) <= (ty, tm):
+        needed.append(f"{y}-{m:02d}")
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+
+    # Check all needed months are cached
+    if not all(mk in monthly for mk in needed):
+        return None
+
+    if len(needed) == 1:
+        # Single month — return directly
+        return list(monthly[needed[0]])
+
+    # Multi-month — sum count_emm per person (by id)
+    person_totals: dict[int, dict] = {}
+    for mk in needed:
+        for rec in monthly[mk]:
+            pid = rec.get("id")
+            if pid in person_totals:
+                person_totals[pid]["count_emm"] = (
+                    (person_totals[pid].get("count_emm") or 0)
+                    + (rec.get("count_emm") or 0)
+                )
+            else:
+                person_totals[pid] = dict(rec)  # copy
+
+    return list(person_totals.values())
+
+
 def get_count_emm_info(
     *,
     mashinist_type_id: int = 0,
@@ -498,13 +557,25 @@ def get_count_emm_info(
     brigada_group_id: optional brigade filter (cross-references with MashinistListInfo).
     """
     if from_date or to_date:
-        # Date-filtered query — call API directly
-        records = _api_get_count_emm_info(
-            mashinist_type_id=mashinist_type_id,
-            depo_id=depo_id,
-            from_date=from_date,
-            to_date=to_date,
-        )
+        # Try to serve from cached monthly data first
+        _ensure_dataset_loaded()
+        monthly = _dataset_cache.get("count_emm_monthly") or {}
+        cached_records = _resolve_count_emm_from_monthly(monthly, from_date, to_date)
+        if cached_records is not None:
+            records = cached_records
+        else:
+            # Date range doesn't match cached months — call API
+            records = _api_get_count_emm_info(
+                mashinist_type_id=mashinist_type_id,
+                depo_id=depo_id,
+                from_date=from_date,
+                to_date=to_date,
+            )
+        if mashinist_type_id:
+            records = [r for r in records if r.get("mashinist_type_id") == mashinist_type_id]
+        if depo_id:
+            person_map = _get_person_info_map()
+            records = [r for r in records if person_map.get(r.get("id"), {}).get("depo_id") == depo_id]
     else:
         # Use cached cumulative data
         _ensure_dataset_loaded()
@@ -738,6 +809,8 @@ def _write_dataset_cache_file(
     count_emm: list[dict],
     med_data: list[dict],
     fetched_at: float,
+    *,
+    count_emm_monthly: dict[str, list[dict]] | None = None,
 ) -> None:
     path = settings.BRIGADE_DATA_CACHE_PATH
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -749,6 +822,7 @@ def _write_dataset_cache_file(
         "work_info_count": len(work_info),
         "count_emm": count_emm,
         "count_emm_count": len(count_emm),
+        "count_emm_monthly": count_emm_monthly or {},
         "med_data": med_data,
         "med_data_count": len(med_data),
     }
@@ -765,6 +839,7 @@ def _load_cache_into_memory(payload: dict[str, Any], source: str, fetched_at: fl
     _dataset_cache["records"] = payload.get("records") or []
     _dataset_cache["work_info"] = payload.get("work_info") or []
     _dataset_cache["count_emm"] = payload.get("count_emm") or []
+    _dataset_cache["count_emm_monthly"] = payload.get("count_emm_monthly") or {}
     _dataset_cache["med_data"] = payload.get("med_data") or []
     _dataset_cache["fetched_at"] = fetched_at
     _dataset_cache["source"] = source
@@ -799,6 +874,27 @@ def refresh_dataset_cache() -> dict:
         logger.warning("Failed to fetch CountEmmInfo: %s", exc)
         count_emm = []
 
+    # 3b. CountEmmInfo — monthly breakdown (Jan, Feb, Mar, ...)
+    count_emm_monthly: dict[str, list[dict]] = {}
+    current_year = now_dt.year
+    current_month = now_dt.month
+    for m in range(1, current_month + 1):
+        m_from = f"{current_year}-{m:02d}-01T00:00:00"
+        if m == current_month:
+            m_to = now_dt.strftime("%Y-%m-%dT23:59:59")
+        else:
+            # Last day of month
+            import calendar
+            last_day = calendar.monthrange(current_year, m)[1]
+            m_to = f"{current_year}-{m:02d}-{last_day:02d}T23:59:59"
+        try:
+            month_data = _api_get_count_emm_info(from_date=m_from, to_date=m_to)
+            month_key = f"{current_year}-{m:02d}"
+            count_emm_monthly[month_key] = month_data
+            logger.info("Fetched CountEmm for %s: %d records", month_key, len(month_data))
+        except BrigadeApiError as exc:
+            logger.warning("Failed to fetch CountEmmInfo for month %d: %s", m, exc)
+
     # 4. MedFullData (from 2026-01-01 to today)
     med_from = "2026-01-01T00:00:00"
     med_to = now_dt.strftime("%Y-%m-%dT23:59:59")
@@ -811,17 +907,20 @@ def refresh_dataset_cache() -> dict:
     _dataset_cache["records"] = records
     _dataset_cache["work_info"] = work_info
     _dataset_cache["count_emm"] = count_emm
+    _dataset_cache["count_emm_monthly"] = count_emm_monthly
     _dataset_cache["med_data"] = med_data
     _dataset_cache["loaded"] = True
     _dataset_cache["fetched_at"] = now
     _dataset_cache["source"] = "live_api"
 
-    _write_dataset_cache_file(records, work_info, count_emm, med_data, now)
+    _write_dataset_cache_file(records, work_info, count_emm, med_data, now,
+                              count_emm_monthly=count_emm_monthly)
 
     return {
         "record_count": len(records),
         "work_info_count": len(work_info),
         "count_emm_count": len(count_emm),
+        "count_emm_monthly_months": list(count_emm_monthly.keys()),
         "med_data_count": len(med_data),
         "fetched_at": datetime.fromtimestamp(now).isoformat(),
         "source": "live_api",
@@ -861,6 +960,24 @@ def update_dataset_cache() -> dict:
         logger.warning("Failed to fetch CountEmmInfo for update: %s", exc)
         count_emm = old_count_emm
 
+    # 3b: CountEmm monthly — re-fetch each month
+    import calendar
+    count_emm_monthly: dict[str, list[dict]] = dict(_dataset_cache.get("count_emm_monthly") or {})
+    current_year = now_dt.year
+    current_month = now_dt.month
+    for m in range(1, current_month + 1):
+        m_from = f"{current_year}-{m:02d}-01T00:00:00"
+        if m == current_month:
+            m_to = now_dt.strftime("%Y-%m-%dT23:59:59")
+        else:
+            last_day = calendar.monthrange(current_year, m)[1]
+            m_to = f"{current_year}-{m:02d}-{last_day:02d}T23:59:59"
+        try:
+            month_data = _api_get_count_emm_info(from_date=m_from, to_date=m_to)
+            count_emm_monthly[f"{current_year}-{m:02d}"] = month_data
+        except BrigadeApiError as exc:
+            logger.warning("Failed to fetch CountEmmInfo for month %d: %s", m, exc)
+
     # 4: MedFullData — fetch recent window and merge
     med_from = (now_dt - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00")
     med_to = now_dt.strftime("%Y-%m-%dT23:59:59")
@@ -887,17 +1004,20 @@ def update_dataset_cache() -> dict:
     _dataset_cache["records"] = records
     _dataset_cache["work_info"] = work_info
     _dataset_cache["count_emm"] = count_emm
+    _dataset_cache["count_emm_monthly"] = count_emm_monthly
     _dataset_cache["med_data"] = med_data
     _dataset_cache["loaded"] = True
     _dataset_cache["fetched_at"] = now
     _dataset_cache["source"] = "live_api_update"
 
-    _write_dataset_cache_file(records, work_info, count_emm, med_data, now)
+    _write_dataset_cache_file(records, work_info, count_emm, med_data, now,
+                              count_emm_monthly=count_emm_monthly)
 
     return {
         "record_count": len(records),
         "work_info_count": len(work_info),
         "count_emm_count": len(count_emm),
+        "count_emm_monthly_months": list(count_emm_monthly.keys()),
         "med_data_count": len(med_data),
         "fetched_at": datetime.fromtimestamp(now).isoformat(),
         "source": "live_api_update",
